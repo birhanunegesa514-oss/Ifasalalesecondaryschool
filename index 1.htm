@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ifa Salale Secondary School</title>
+<style>
+body { font-family: Arial, sans-serif; background-color: #00CDAC; display: flex; justify-content: center; align-items: center; height: 100vh; margin:0; }
+.login-container, .main-container { background-color: #fff; padding: 25px 30px; border-radius: 10px; box-shadow:0 0 10px rgba(0,0,0,0.2); width:90%; max-width:850px; text-align:center; }
+input[type="password"], button, input, select { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:5px; font-size:16px; box-sizing:border-box; }
+button { background-color:#3498db; color:white; border:none; cursor:pointer; }
+button:hover { background-color:#2980b9; }
+.marquee-text { font-size:20px; color:#FF60A8; font-weight:bold; margin-bottom:15px; }
+.main-container { display:none; max-width:850px; }
+table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
+th, td { border:1px solid #ddd; padding:6px; text-align:center; }
+th { background-color:#3498db; color:white; }
+tr:nth-child(even){ background-color:#f2f2f2; }
+.actions button { width:auto; padding:4px 7px; font-size:12px; margin:0 2px; }
+.status-accepted { color:green; font-weight:bold; }
+.status-not { color:red; font-weight:bold; }
+
+/* Success Message Styling */
+.success-msg { color: #fff; background-color: #28a745; padding: 10px 15px; border-radius: 6px; font-weight: bold; margin-top: 10px; display: inline-block; animation: fadeOut 3s forwards; }
+@keyframes fadeOut { 0% { opacity:1; } 80% { opacity:1; } 100% { opacity:0; display:none; } }
+
+/* Modal Styles */
+.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color: rgba(0,0,0,0.5);}
+.modal-content { background-color:#fefefe; margin:10% auto; padding:20px; border-radius:10px; width:90%; max-width:500px; position:relative; }
+.close { color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer; }
+.close:hover, .close:focus { color:black; text-decoration:none; cursor:pointer; }
+.modal input, .modal select, .modal button { width:100%; margin:5px 0; padding:8px; font-size:14px; }
+.modal button { background-color:#3498db; color:white; border:none; cursor:pointer; }
+.modal button:hover { background-color:#2980b9; }
+
+/* Small helper */
+.inline-row { display:flex; gap:8px; align-items:center; justify-content:center; }
+.inline-row input { width:70%; }
+.inline-row button { width:auto; padding:10px 16px; }
+
+.info { font-size:13px; color:#444; margin-top:8px; text-align:left; }
+.green { color:green; font-weight:bold; }
+.red { color:red; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<!-- Login Page -->
+<div class="login-container" id="loginPage">
+  <marquee class="marquee-text">WELL COME TO IFA SALALE SECONDARY SCHOOL</marquee>
+  <input type="password" id="password" placeholder="Enter Password" maxlength="20" required>
+  <div class="inline-row" style="margin-top:6px;">
+    <button onclick="checkLogin()">Login</button>
+    <button onclick="showStudentForm()" style="background-color:#2ecc71;">Student Register</button>
+  </div>
+  <p id="errorMsg" style="color:red; display:none; margin-top:8px;">Incorrect password!</p>
+  <p class="info">Admin default password is <strong>2025</strong> (only first time). After login admin can change it.</p>
+</div>
+
+<!-- Admin Main Page -->
+<div class="main-container" id="adminPage">
+  <h2>Admin @Birhanu IT Teacher</h2>
+  <p style="font-size:12px; color:#555; margin-bottom:15px;">
+    birhanunegesa514@gmail.com | &copy; 2025
+  </p>
+  <button onclick="logout()">Logout</button>
+
+  <h3 style="margin-top:16px;">Change Admin Password</h3>
+  <form id="changePassForm" style="max-width:420px; margin:0 auto 12px;">
+    <input type="password" id="currentAdminPass" placeholder="Current Password" required>
+    <input type="password" id="newAdminPass" placeholder="New Password (min 4 chars)" minlength="4" required>
+    <input type="password" id="confirmAdminPass" placeholder="Confirm New Password" required>
+    <button type="submit">Save New Password</button>
+    <p id="changePassMsg" style="margin-top:8px;"></p>
+  </form>
+
+  <div id="studentList">
+    <h3>Registered Students</h3>
+    <table id="studentsTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Grade</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Student Page -->
+<div class="main-container" id="studentPage">
+  <h2>Student Registration</h2>
+  <form id="registrationForm">
+    <input type="text" name="fname" placeholder="First Name" required>
+    <input type="text" name="lname" placeholder="Last Name" required>
+    <select name="sex" required>
+      <option value="">Select Sex</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="tel" name="phone" placeholder="Phone Number" pattern="\d{10}" title="Please enter exactly 10 digits" required>
+    <select name="grade" required>
+      <option value="">Select Grade</option>
+      <option value="9">Grade 9</option>
+      <option value="10">Grade 10</option>
+      <option value="11">Grade 11</option>
+      <option value="12">Grade 12</option>
+    </select>
+    <button type="submit">Register</button>
+  </form>
+  <div id="successMessage"></div>
+  <h3 style="margin-top:14px;">Check Your Status</h3>
+  <input type="email" id="checkEmail" placeholder="Enter your email to check status">
+  <button onclick="checkStatus()">Check Status</button>
+  <p id="statusMsg"></p>
+  <button onclick="logout()" style="margin-top:10px;">Logout</button>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h3>Edit Student</h3>
+    <form id="editForm">
+      <input type="text" name="fname" placeholder="First Name" required>
+      <input type="text" name="lname" placeholder="Last Name" required>
+      <select name="sex" required>
+        <option value="">Select Sex</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="tel" name="phone" placeholder="Phone Number" pattern="\d{10}" required>
+      <select name="grade" required>
+        <option value="">Select Grade</option>
+        <option value="9">Grade 9</option>
+        <option value="10">Grade 10</option>
+        <option value="11">Grade 11</option>
+        <option value="12">Grade 12</option>
+      </select>
+      <button type="submit">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Initialize admin password if not set
+const ADMIN_KEY = "adminPassword";
+const DEFAULT_ADMIN = "2025";
+if(!localStorage.getItem(ADMIN_KEY)) {
+  localStorage.setItem(ADMIN_KEY, DEFAULT_ADMIN);
+}
+
+// === LOGIN ===
+function checkLogin() {
+  const pass = document.getElementById("password").value.trim();
+  const storedAdmin = localStorage.getItem(ADMIN_KEY) || DEFAULT_ADMIN;
+  const error = document.getElementById("errorMsg");
+  error.style.display = "none";
+
+  if(pass === storedAdmin){ // Admin login with stored password
+    document.getElementById("loginPage").style.display="none";
+    document.getElementById("adminPage").style.display="block";
+    loadStudents();
+    // Clear password input
+    document.getElementById("password").value = "";
+  } else if(pass === "1234"){ // Student quick access (unchanged)
+    document.getElementById("loginPage").style.display="none";
+    document.getElementById("studentPage").style.display="block";
+    document.getElementById("password").value = "";
+  } else {
+    error.style.display="block";
+  }
+}
+
+function showStudentForm(){
+  document.getElementById("loginPage").style.display="none";
+  document.getElementById("studentPage").style.display="block";
+}
+
+// === LOGOUT ===
+function logout(){
+  // hide all main containers and show login
+  document.getElementById("adminPage").style.display="none";
+  document.getElementById("studentPage").style.display="none";
+  document.getElementById("loginPage").style.display="block";
+}
+
+// === STUDENT REGISTRATION ===
+const form = document.getElementById("registrationForm");
+form.addEventListener("submit", function(e){
+  e.preventDefault();
+  const student = {
+    fname:this.fname.value,
+    lname:this.lname.value,
+    sex:this.sex.value,
+    email:this.email.value,
+    phone:this.phone.value,
+    grade:this.grade.value,
+    status:"Not Accepted"
+  };
+  let students = JSON.parse(localStorage.getItem("students")) || [];
+  // prevent duplicate email
+  const exists = students.some(s => s.email === student.email);
+  if(exists){
+    const successDiv = document.getElementById("successMessage");
+    successDiv.innerHTML = `<div class="success-msg" style="background:#e67e22;">Email already registered!</div>`;
+    return;
+  }
+  students.push(student);
+  localStorage.setItem("students", JSON.stringify(students));
+
+  const successDiv = document.getElementById("successMessage");
+  successDiv.innerHTML = `<div class="success-msg">Registration Successful! ✅</div>`;
+  
+  this.reset();
+});
+
+// === ADMIN FUNCTIONS ===
+let currentEditIndex = null;
+function loadStudents(){
+  let students = JSON.parse(localStorage.getItem("students")) || [];
+  const tableBody = document.getElementById("tableBody");
+  tableBody.innerHTML="";
+  students.forEach((s,i)=>{
+    tableBody.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${s.fname} ${s.lname}</td>
+        <td>${s.email}</td>
+        <td>${s.phone}</td>
+        <td>${s.grade}</td>
+        <td class="${s.status==='Accepted'?'status-accepted':'status-not'}">${s.status}</td>
+        <td class="actions">
+          <button onclick="acceptStudent(${i})">Accept</button>
+          <button onclick="editStudent(${i})">Edit</button>
+          <button onclick="deleteStudent(${i})">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function acceptStudent(index){
+  let students = JSON.parse(localStorage.getItem("students")) || [];
+  students[index].status="Accepted";
+  localStorage.setItem("students", JSON.stringify(students));
+  loadStudents();
+}
+
+function editStudent(index){
+  currentEditIndex = index;
+  let students = JSON.parse(localStorage.getItem("students")) || [];
+  const s = students[index];
+
+  const modal = document.getElementById("editModal");
+  modal.style.display = "block";
+
+  const editForm = document.getElementById("editForm");
+  editForm.fname.value = s.fname;
+  editForm.lname.value = s.lname;
+  editForm.sex.value = s.sex;
+  editForm.email.value = s.email;
+  editForm.phone.value = s.phone;
+  editForm.grade.value = s.grade;
+}
+
+function closeModal(){ document.getElementById("editModal").style.display="none"; }
+
+const editForm = document.getElementById("editForm");
+editForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  let students = JSON.parse(localStorage.getItem("students")) || [];
+  if(currentEditIndex !== null){
+    students[currentEditIndex] = {
+      fname: this.fname.value,
+      lname: this.lname.value,
+      sex: this.sex.value,
+      email: this.email.value,
+      phone: this.phone.value,
+      grade: this.grade.value,
+      status: students[currentEditIndex].status
+    };
+    localStorage.setItem("students", JSON.stringify(students));
+    loadStudents();
+    closeModal();
+  }
+});
+
+function deleteStudent(index){
+  if(confirm("Are you sure you want to delete this student?")){
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+    students.splice(index,1);
+    localStorage.setItem("students", JSON.stringify(students));
+    loadStudents();
+  }
+}
+
+// === STUDENT STATUS CHECK ===
+function checkStatus(){
+  const email = document.getElementById("checkEmail").value.trim();
+  let students = JSON.parse(localStorage.getItem("students")) || [];
+  const student = students.find(s=>s.email===email);
+  const statusMsg = document.getElementById("statusMsg");
+  if(student){
+    if(student.status==="Accepted") statusMsg.innerHTML=`<span class="status-accepted">Accepted</span>`;
+    else statusMsg.innerHTML=`<span class="status-not">Not Accepted</span>`;
+  } else {
+    statusMsg.innerHTML=`<span class="status-not">Email not found</span>`;
+  }
+}
+
+// Close modal on outside click
+window.onclick = function(event){
+  const modal = document.getElementById("editModal");
+  if(event.target == modal) modal.style.display="none";
+}
+
+// === CHANGE ADMIN PASSWORD ===
+const changeForm = document.getElementById("changePassForm");
+changeForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const current = document.getElementById("currentAdminPass").value.trim();
+  const newPass = document.getElementById("newAdminPass").value.trim();
+  const confirmPass = document.getElementById("confirmAdminPass").value.trim();
+  const msg = document.getElementById("changePassMsg");
+  const stored = localStorage.getItem(ADMIN_KEY) || DEFAULT_ADMIN;
+
+  msg.innerText = "";
+  msg.style.color = "";
+
+  if(current !== stored){
+    msg.innerText = "Current password is incorrect.";
+    msg.style.color = "red";
+    return;
+  }
+  if(newPass.length < 4){
+    msg.innerText = "New password must be at least 4 characters.";
+    msg.style.color = "red";
+    return;
+  }
+  if(newPass !== confirmPass){
+    msg.innerText = "New password and confirm password do not match.";
+    msg.style.color = "red";
+    return;
+  }
+  // Save new admin password
+  localStorage.setItem(ADMIN_KEY, newPass);
+  msg.innerText = "Admin password changed successfully. Use the new password on next login.";
+  msg.style.color = "green";
+
+  // Clear inputs
+  document.getElementById("currentAdminPass").value = "";
+  document.getElementById("newAdminPass").value = "";
+  document.getElementById("confirmAdminPass").value = "";
+
+  // For safety, log out admin so they re-login with new pass
+  setTimeout(()=> {
+    alert("You will be logged out so you can log in again with the new password.");
+    logout();
+  }, 900);
+});
+</script>
+</body>
+</html>
